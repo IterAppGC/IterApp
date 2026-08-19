@@ -1,504 +1,657 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Iter · Anuncios</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Iter — Anuncios en el feed y contacto de marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0a0a0f;
-    --surface:#14141c;
-    --surface-2:#1c1c26;
-    --line:#282833;
-    --text:#edeef4;
-    --muted:#8e8fa3;
-    --faint:#63647a;
-    --accent:#6e56f8;
-    --accent-2:#00d3ae;
-    --sponsor:#f0b429;
-    --pro:#ffd166;
-    --radius:18px;
-    --font:'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  /* ================================================================
+     ANUNCIOS EN ITER — maqueta
+     Paleta, tipografía y componentes tomados de la app real:
+       frontend/src/app/globals.css              (tema dark de DaisyUI)
+       frontend/src/components/feed/FeedTab.jsx  (cabecera + pestañas)
+       frontend/src/components/feed/PostCard.jsx (tarjeta de sesión)
+       frontend/src/components/shared/NavigationBar.jsx
+       frontend/src/lib/effectiveness.js         (escala de color)
+     El anuncio reutiliza la MISMA tarjeta que un post de sesión: sólo
+     cambia la etiqueta "Patrocinado", el bloque de acción y el pie.
+     ================================================================ */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: oklch(51.16% 0.2392 263.37);
+    --primary-bright: oklch(72% 0.16 263.37);
+    --base-100: #020617;
+    --base-200: #0f172a;
+    --base-300: #1e293b;
+    --base-content: #f8fafc;
+    --muted: #94a3b8;
+    --error: #f87171;
+    --brand-teal: #38b4ac;
+    --break: #3b82f6;
+    --gold: #f5b544;
+
+    --sf: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+          'Helvetica Neue', 'Segoe UI', sans-serif;
+    --display: 'Plus Jakarta Sans', var(--sf);
   }
-  *{box-sizing:border-box}
-  body{
-    margin:0; background:
-      radial-gradient(900px 600px at 15% -10%, #241f52 0%, transparent 60%),
-      radial-gradient(800px 500px at 95% 0%, #0d3b39 0%, transparent 55%),
-      var(--bg);
-    color:var(--text); font-family:var(--font); -webkit-font-smoothing:antialiased;
-    min-height:100vh;
+
+  body {
+    background: #08080c;
+    font-family: var(--sf);
+    -webkit-font-smoothing: antialiased;
+    color: var(--base-content);
+    padding: 40px 24px 90px;
   }
 
-  /* ---------- Cabecera de la maqueta ---------- */
-  .mockbar{
-    position:sticky; top:0; z-index:50;
-    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
-    padding:14px 24px; background:rgba(10,10,15,.82); backdrop-filter:blur(14px);
-    border-bottom:1px solid var(--line);
+  .intro { max-width: 760px; margin: 0 auto 30px; text-align: center; }
+  .intro h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.025em; font-family: var(--display); }
+  .intro p { color: var(--muted); font-size: 14px; margin-top: 10px; line-height: 1.65; }
+  .intro code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: #cbd5e1; }
+
+  .switch { display: flex; gap: 6px; justify-content: center; margin: 24px auto 36px;
+            background: var(--base-200); border: 1px solid var(--base-300);
+            padding: 5px; border-radius: 999px; width: fit-content; }
+  .switch button { border: 0; background: none; color: var(--muted); font: inherit;
+                   font-size: 13.5px; font-weight: 600; padding: 8px 18px; border-radius: 999px;
+                   cursor: pointer; transition: .18s; }
+  .switch button[aria-selected="true"] { background: var(--primary); color: #fff; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── Marco del teléfono (mismas medidas que mockups/pro-paywall.html) ── */
+  .stage { display: flex; gap: 48px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+  .phone {
+    width: 375px; height: 812px;
+    border-radius: 46px; border: 1.5px solid #24242f;
+    overflow: hidden; position: relative;
+    display: flex; flex-direction: column;
+    background: var(--base-100);
+    box-shadow: 0 40px 90px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.05);
+    font-size: 15px; flex: none;
   }
-  .brand{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:-.02em}
-  .brand .logo{
-    width:30px; height:30px; border-radius:10px; display:grid; place-items:center;
-    background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#0a0a0f; font-weight:800;
-  }
-  .mockbar .tag{font-size:12px; color:var(--muted); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
-  .switch{display:flex; gap:6px; margin-left:auto; background:var(--surface); padding:5px; border-radius:999px; border:1px solid var(--line)}
-  .switch button{
-    border:0; background:transparent; color:var(--muted); font:inherit; font-size:13.5px; font-weight:600;
-    padding:8px 16px; border-radius:999px; cursor:pointer; transition:.18s;
-  }
-  .switch button[aria-selected="true"]{background:var(--accent); color:#fff}
+  .notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+           width: 118px; height: 30px; border-radius: 0 0 18px 18px;
+           background: rgba(0,0,0,.5); z-index: 30; }
+  .statusbar { display: flex; justify-content: space-between; padding: 12px 26px 0;
+               font-size: 13px; font-weight: 600; opacity: .9; }
 
-  .view{display:none; padding:34px 24px 80px}
-  .view.active{display:block}
-  .view-note{max-width:980px; margin:0 auto 26px; color:var(--muted); font-size:14px; line-height:1.65; text-align:center}
+  /* ── Cabecera del feed (FeedTab.jsx) ─────────────────────────── */
+  .feedhead { padding: 10px 16px 0; border-bottom: 1px solid rgba(30,41,59,.6); background: var(--base-100); }
+  .feedhead .icons { display: flex; justify-content: flex-end; gap: 4px; margin-bottom: 12px; }
+  .ghost-btn { width: 32px; height: 32px; border-radius: 999px; display: grid; place-items: center;
+               background: none; border: 0; color: rgba(248,250,252,.5); position: relative; }
+  .badge-dot { position: absolute; top: -1px; right: -1px; background: #f43f5e; color: #fff;
+               font-size: 10px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 999px;
+               display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+  .ftabs { display: flex; }
+  .ftabs button { flex: 1; display: flex; justify-content: center; background: none; border: 0;
+                  font: inherit; font-size: 14px; font-weight: 600; color: rgba(248,250,252,.5); cursor: pointer; }
+  .ftabs button span { padding: 0 4px 10px; border-bottom: 2px solid transparent; }
+  .ftabs button.on { color: var(--base-content); }
+  .ftabs button.on span { border-bottom-color: var(--primary); }
 
-  /* ---------- Móvil ---------- */
-  .phone-wrap{display:flex; justify-content:center}
-  .phone{
-    width:412px; max-width:100%; height:830px; background:var(--bg);
-    border:11px solid #191922; border-radius:46px; overflow:hidden;
-    box-shadow:0 40px 90px rgba(0,0,0,.6); display:flex; flex-direction:column; position:relative;
-  }
-  .status{display:flex; justify-content:space-between; padding:12px 24px 4px; font-size:12.5px; color:var(--muted); font-weight:600}
-  .app-head{padding:6px 16px 0}
-  .app-head .row{display:flex; align-items:center; justify-content:space-between}
-  .app-head .row .name{font-size:21px; font-weight:800; letter-spacing:-.03em}
-  .icon-btn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);color:var(--muted);font-size:14px}
-  .tabs{display:flex; gap:26px; margin-top:12px; border-bottom:1px solid var(--line); padding:0 2px}
-  .tabs span{padding-bottom:11px; font-size:14.5px; font-weight:600; color:var(--faint)}
-  .tabs span.on{color:var(--text); box-shadow:inset 0 -2px 0 var(--accent)}
+  .scroll { flex: 1; overflow-y: auto; scrollbar-width: none; }
+  .scroll::-webkit-scrollbar { display: none; }
 
-  .feed{flex:1; overflow-y:auto; padding:4px 0 16px; scrollbar-width:thin}
-  .feed::-webkit-scrollbar{width:6px}
-  .feed::-webkit-scrollbar-thumb{background:#2a2a36; border-radius:3px}
+  /* ── Tarjeta de post (PostCard.jsx) ──────────────────────────── */
+  .card { background: var(--base-100); border-bottom: 1px solid var(--base-300); }
+  .p-head { padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .p-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .avatar { width: 40px; height: 40px; border-radius: 999px; display: grid; place-items: center;
+            color: #fff; font-weight: 700; font-size: 14px; flex: none; }
+  .p-name { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .p-name h3 { font-size: 14px; font-weight: 600; }
+  .p-time { font-size: 12px; color: rgba(248,250,252,.5); }
+  .chips { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+  .chip-career { font-size: 12px; padding: 1px 8px; border-radius: 999px;
+                 background: color-mix(in oklab, var(--primary) 10%, transparent);
+                 color: var(--primary-bright); border: 1px solid color-mix(in oklab, var(--primary) 30%, transparent); }
+  .chip-uni { font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--base-300);
+              color: rgba(248,250,252,.8); border: 1px solid var(--base-300); }
+  .chip-place { font-size: 12px; color: rgba(248,250,252,.4); display: flex; align-items: center; gap: 4px; }
+  .kebab { background: none; border: 0; color: rgba(248,250,252,.5); padding: 4px; cursor: pointer; flex: none; }
 
-  /* ---------- Publicación (formato común) ---------- */
-  .post{padding:16px; border-bottom:1px solid var(--line)}
-  .p-head{display:flex; gap:11px; align-items:flex-start}
-  .av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;color:#0a0a0f;flex:none}
-  .p-id{flex:1; min-width:0}
-  .p-name{display:flex; align-items:center; gap:6px; font-size:14.5px; font-weight:700; letter-spacing:-.01em}
-  .p-meta{font-size:12.5px; color:var(--faint); margin-top:2px}
-  .verified{width:14px;height:14px;fill:var(--accent-2)}
-  .dots{color:var(--faint); font-size:17px; line-height:1; padding:2px 4px; cursor:pointer; background:none;border:0}
-  .p-text{margin:11px 0 0; font-size:14.5px; line-height:1.55; color:#dcdde8}
-  .media{margin-top:12px; border-radius:14px; height:230px; border:1px solid var(--line); position:relative; overflow:hidden;
-         display:grid; place-items:center; text-align:center; padding:20px}
-  .media .mtitle{font-size:22px; font-weight:800; letter-spacing:-.02em; color:#fff; text-shadow:0 2px 14px rgba(0,0,0,.45)}
-  .media .msub{font-size:13px; color:rgba(255,255,255,.82); margin-top:6px}
-  .acts{display:flex; gap:22px; margin-top:13px; color:var(--faint); font-size:13px; align-items:center}
-  .acts span{display:flex; align-items:center; gap:6px}
-  .acts .save{margin-left:auto}
-  .ico{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .p-title { padding: 0 16px 12px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .p-title h2 { font-family: var(--display); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+  .eff { flex: none; border-radius: 12px; padding: 6px 12px; text-align: center; border: 1px solid; }
+  .eff .l { font-size: 10px; text-transform: uppercase; letter-spacing: .16em; line-height: 1; margin-bottom: 4px; }
+  .eff .v { font-size: 18px; font-weight: 700; line-height: 1; }
+  .eff.green { border-color: rgba(21,128,61,.7); background: rgba(5,46,22,.5); }
+  .eff.green .l { color: #22c55e; } .eff.green .v { color: #86efac; }
+  .eff.lime  { border-color: rgba(77,124,15,.7); background: rgba(26,46,5,.5); }
+  .eff.lime .l { color: #84cc16; } .eff.lime .v { color: #bef264; }
 
-  /* ---------- Anuncio ---------- */
-  .post.ad{background:linear-gradient(180deg, rgba(110,86,248,.07), rgba(110,86,248,0) 55%)}
-  .chip-ad{
-    display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.06em;
-    text-transform:uppercase; color:var(--sponsor); background:rgba(240,180,41,.12);
-    border:1px solid rgba(240,180,41,.32); padding:2px 7px; border-radius:6px;
-  }
-  .cta{
-    display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:10px;
-    background:var(--surface-2); border:1px solid var(--line); border-radius:14px; padding:12px 14px; cursor:pointer;
-  }
-  .cta .dom{font-size:11.5px; color:var(--faint); text-transform:uppercase; letter-spacing:.05em}
-  .cta .head{font-size:14px; font-weight:700; margin-top:3px}
-  .cta .btn{background:var(--accent); color:#fff; border:0; font:inherit; font-size:13px; font-weight:700; padding:9px 16px; border-radius:10px; white-space:nowrap; cursor:pointer}
+  .bar-wrap { padding: 0 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .bar { display: flex; height: 14px; width: 100%; border-radius: 9999px; overflow: hidden; gap: 2px; }
+  .bar div { height: 100%; flex-shrink: 0; }
+  .marks { display: flex; justify-content: space-between; font-size: 10px; color: rgba(248,250,252,.3); }
+  .legend { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }
+  .legend .keys { display: flex; align-items: center; gap: 16px; }
+  .legend .k { display: flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(248,250,252,.5); }
+  .legend .dot { width: 10px; height: 10px; border-radius: 999px; }
+  .mode { font-size: 11px; font-weight: 500; color: rgba(248,250,252,.5); background: var(--base-300);
+          padding: 1px 8px; border-radius: 999px; border: 1px solid rgba(30,41,59,.6); }
+  .p-desc { padding: 12px 16px 16px; font-size: 14px; line-height: 1.6; color: rgba(248,250,252,.8); }
+  .photo { height: 168px; display: grid; place-items: center; text-align: center; }
+  .photo .t { font-family: var(--display); font-size: 15px; font-weight: 700; }
+  .photo .s { font-size: 12px; color: rgba(255,255,255,.7); margin-top: 4px; }
 
-  /* ---------- Pie del anuncio: publicítate + Plan Pro ---------- */
-  .ad-foot{padding:12px 16px 16px; border-bottom:1px solid var(--line); background:rgba(110,86,248,.04)}
-  .promo{
-    width:100%; display:flex; align-items:center; gap:11px; text-align:left; cursor:pointer;
-    background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:11px 13px; color:inherit; font:inherit;
-    transition:.18s;
-  }
-  .promo:hover{border-color:var(--accent); background:var(--surface-2)}
-  .promo .mg{width:32px;height:32px;border-radius:9px;flex:none;display:grid;place-items:center;
-             background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#0a0a0f}
-  .promo .t1{font-size:13.5px; font-weight:700}
-  .promo .t2{font-size:11.5px; color:var(--faint); margin-top:2px}
-  .promo .arrow{margin-left:auto; color:var(--faint); font-size:15px}
-  .pro-line{
-    display:block; width:100%; text-align:center; margin-top:9px; background:none; border:0; cursor:pointer;
-    font:inherit; font-size:11px; color:var(--faint); letter-spacing:.01em; padding:2px;
-  }
-  .pro-line:hover{color:var(--pro)}
-  .pro-line b{font-weight:700; color:var(--pro)}
+  .acts { border-top: 1px solid var(--base-300); padding: 12px 16px; display: flex; align-items: center; gap: 20px;
+          color: rgba(248,250,252,.5); }
+  .acts .it { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; }
+  .acts .share { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 14px; }
 
-  /* menú contextual del anuncio */
-  .menu{
-    position:absolute; right:22px; top:250px; width:250px; background:var(--surface-2);
-    border:1px solid var(--line); border-radius:14px; padding:6px; box-shadow:0 22px 44px rgba(0,0,0,.55); z-index:9;
-  }
-  .menu div{padding:10px 12px; font-size:13px; border-radius:9px; color:#d3d4e0}
-  .menu div:hover{background:#26263280}
-  .menu div small{display:block; color:var(--faint); font-size:11px; margin-top:2px}
-  .menu .hl{color:var(--pro); font-weight:600}
-  .menu-tip{position:absolute; right:300px; top:256px; font-size:11.5px; color:var(--faint); background:var(--surface); border:1px dashed var(--line); padding:6px 10px; border-radius:8px; z-index:9}
+  /* ── Anuncio ─────────────────────────────────────────────────── */
+  .chip-ad { font-size: 11px; font-weight: 700; letter-spacing: .04em; padding: 1px 8px; border-radius: 999px;
+             background: rgba(245,181,68,.12); color: var(--gold); border: 1px solid rgba(245,181,68,.35); }
+  .adcta { border-top: 1px solid var(--base-300); padding: 12px 16px; display: flex; align-items: center;
+           justify-content: space-between; gap: 12px; }
+  .adcta .dom { font-size: 11px; color: rgba(248,250,252,.4); text-transform: uppercase; letter-spacing: .06em; }
+  .adcta .h { font-size: 14px; font-weight: 600; margin-top: 2px; }
+  .adcta .btn { background: var(--primary); color: #fff; border: 0; font: inherit; font-size: 13px;
+                font-weight: 600; padding: 8px 16px; border-radius: 8px; white-space: nowrap; cursor: pointer; }
 
-  .tabbar{display:flex; justify-content:space-around; padding:12px 0 20px; border-top:1px solid var(--line); background:rgba(10,10,15,.9)}
-  .tabbar span{color:var(--faint)}
-  .tabbar span.on{color:var(--text)}
+  /* pie del anuncio: publicítate + Iter Pro */
+  .adfoot { padding: 12px 16px 14px; border-bottom: 1px solid var(--base-300); }
+  .promo { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;
+           background: var(--base-200); border: 1px solid var(--base-300); border-radius: 12px;
+           padding: 10px 12px; color: inherit; font: inherit; transition: .18s; }
+  .promo:hover { border-color: color-mix(in oklab, var(--primary) 55%, transparent); }
+  .promo .ic { width: 32px; height: 32px; border-radius: 9px; flex: none; display: grid; place-items: center;
+               background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary-bright); }
+  .promo .t1 { display: block; font-size: 13.5px; font-weight: 600; }
+  .promo .t2 { display: block; font-size: 11.5px; color: rgba(248,250,252,.5); margin-top: 2px; }
+  .promo .ch { margin-left: auto; color: rgba(248,250,252,.35); }
+  .pro-line { display: block; width: 100%; text-align: center; margin-top: 8px; background: none; border: 0;
+              cursor: pointer; font: inherit; font-size: 11px; color: rgba(248,250,252,.35); padding: 2px; }
+  .pro-line:hover { color: var(--gold); }
+  .pro-line b { font-weight: 600; color: rgba(245,181,68,.85); }
 
-  .callouts{max-width:340px; font-size:13px; line-height:1.6; color:var(--muted)}
-  .callouts h4{color:var(--text); font-size:13.5px; margin:0 0 6px}
-  .callouts li{margin-bottom:14px; list-style:none}
-  .callouts li b{color:var(--text)}
-  .stage{display:flex; gap:44px; justify-content:center; align-items:flex-start; flex-wrap:wrap}
+  /* menú del kebab del anuncio */
+  .menu { min-width: 200px; background: var(--base-200); border: 1px solid var(--base-300);
+          border-radius: 12px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,.6); }
+  .menu button { width: 100%; display: flex; align-items: center; gap: 8px; padding: 10px 16px; font: inherit;
+                 font-size: 13px; color: rgba(248,250,252,.8); background: none; border: 0; text-align: left; cursor: pointer; }
+  .menu button:hover { background: var(--base-300); }
+  .menu button.danger { color: var(--error); }
+  .menu button.pro { color: var(--gold); }
+  .menu-state { margin-bottom: 26px; }
+  .menu-state .cap { font-size: 11.5px; color: var(--muted); margin-bottom: 8px; display: flex;
+                     align-items: center; gap: 6px; }
+  .menu-state .cap b { color: #cbd5e1; font-weight: 600; }
 
-  /* ---------- Página de marketing ---------- */
-  .page{max-width:1060px; margin:0 auto; background:var(--surface); border:1px solid var(--line); border-radius:22px; overflow:hidden}
-  .page-nav{display:flex; align-items:center; gap:14px; padding:16px 28px; border-bottom:1px solid var(--line)}
-  .page-nav .links{margin-left:auto; display:flex; gap:22px; font-size:13.5px; color:var(--muted)}
-  .page-nav .cta-sm{background:var(--accent); color:#fff; font-size:13px; font-weight:700; padding:9px 15px; border-radius:10px}
-  .hero{padding:56px 44px 40px; text-align:center; border-bottom:1px solid var(--line);
-        background:radial-gradient(600px 260px at 50% 0%, rgba(110,86,248,.18), transparent 70%)}
-  .hero .kicker{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-2); font-weight:700}
-  .hero h1{font-size:42px; line-height:1.1; letter-spacing:-.035em; margin:14px 0 14px}
-  .hero h1 em{font-style:normal; background:linear-gradient(120deg,var(--accent),var(--accent-2)); -webkit-background-clip:text; background-clip:text; color:transparent}
-  .hero p{max-width:560px; margin:0 auto; color:var(--muted); font-size:15.5px; line-height:1.65}
-  .hero .btns{display:flex; gap:12px; justify-content:center; margin-top:26px; flex-wrap:wrap}
-  .b-pri{background:var(--accent); color:#fff; border:0; font:inherit; font-weight:700; font-size:14px; padding:13px 24px; border-radius:12px; cursor:pointer}
-  .b-sec{background:transparent; color:var(--text); border:1px solid var(--line); font:inherit; font-weight:600; font-size:14px; padding:13px 24px; border-radius:12px; cursor:pointer}
-  .hero .fine{margin-top:18px; font-size:12px; color:var(--faint)}
+  /* ── Barra de navegación (NavigationBar.jsx) ─────────────────── */
+  .navbar { border-top: 1px solid var(--base-300); background: var(--base-100); padding: 8px 8px 20px; }
+  .navbar .inner { display: flex; justify-content: space-around; align-items: center; max-width: 28rem; margin: 0 auto; }
+  .navbar span { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+                 color: rgba(248,250,252,.5); }
+  .navbar span.on { color: var(--primary-bright); background: color-mix(in oklab, var(--primary) 10%, transparent); }
 
-  .stats{display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid var(--line)}
-  .stats div{padding:26px 20px; text-align:center; border-right:1px solid var(--line)}
-  .stats div:last-child{border-right:0}
-  .stats .n{font-size:26px; font-weight:800; letter-spacing:-.03em}
-  .stats .l{font-size:12.5px; color:var(--faint); margin-top:5px}
+  /* ── Notas laterales ─────────────────────────────────────────── */
+  .notes { max-width: 330px; }
+  .notes li { list-style: none; margin-bottom: 18px; font-size: 13px; line-height: 1.6; color: var(--muted); }
+  .notes h4 { color: var(--base-content); font-size: 13px; margin-bottom: 5px; font-family: var(--display); font-weight: 700; }
+  .notes b { color: #cbd5e1; font-weight: 600; }
 
-  .sec{padding:44px}
-  .sec h2{font-size:23px; letter-spacing:-.025em; margin:0 0 8px}
-  .sec .sub{color:var(--muted); font-size:14.5px; margin:0 0 26px}
-  .formats{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
-  .fcard{background:var(--surface-2); border:1px solid var(--line); border-radius:16px; padding:20px}
-  .fcard .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;margin-bottom:13px;
-             background:rgba(110,86,248,.16); border:1px solid rgba(110,86,248,.3)}
-  .fcard h3{margin:0 0 7px; font-size:15px}
-  .fcard p{margin:0; font-size:13.5px; color:var(--muted); line-height:1.6}
-  .fcard .px{display:inline-block; margin-top:12px; font-size:11.5px; color:var(--faint); border-top:1px solid var(--line); padding-top:10px}
+  /* ── Página de marketing ─────────────────────────────────────── */
+  .page { max-width: 1040px; margin: 0 auto; background: var(--base-100); border: 1px solid var(--base-300);
+          border-radius: 20px; overflow: hidden; }
+  .pnav { display: flex; align-items: center; gap: 14px; padding: 16px 28px; border-bottom: 1px solid var(--base-300); }
+  .pnav .logo { font-family: var(--display); font-weight: 800; font-size: 17px; letter-spacing: -.02em; }
+  .pnav .logo span { color: var(--muted); font-weight: 500; }
+  .pnav .links { margin-left: auto; display: flex; gap: 22px; font-size: 13.5px; color: var(--muted); }
+  .pnav .cta { background: var(--primary); color: #fff; font-size: 13px; font-weight: 600; padding: 9px 15px; border-radius: 8px; }
+  .hero { padding: 56px 44px 42px; text-align: center; border-bottom: 1px solid var(--base-300);
+          background: radial-gradient(620px 260px at 50% 0%, color-mix(in oklab, var(--primary) 20%, transparent), transparent 70%); }
+  .hero .eyebrow { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--brand-teal); font-weight: 700; }
+  .hero h1 { font-family: var(--display); font-size: 40px; font-weight: 800; letter-spacing: -.035em; line-height: 1.1; margin: 14px 0; }
+  .hero p { max-width: 560px; margin: 0 auto; color: var(--muted); font-size: 15.5px; line-height: 1.65; }
+  .hero .btns { display: flex; gap: 12px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
+  .b-pri { background: var(--primary); color: #fff; border: 0; font: inherit; font-weight: 600; font-size: 14px;
+           padding: 13px 24px; border-radius: 10px; cursor: pointer; }
+  .b-sec { background: none; color: var(--base-content); border: 1px solid var(--base-300); font: inherit;
+           font-weight: 600; font-size: 14px; padding: 13px 24px; border-radius: 10px; cursor: pointer; }
+  .hero .fine { margin-top: 18px; font-size: 12px; color: rgba(248,250,252,.4); }
 
-  .contact{display:grid; grid-template-columns:1.35fr .9fr; gap:28px; border-top:1px solid var(--line)}
-  .form{padding:44px}
-  .row2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
-  label{display:block; font-size:12.5px; font-weight:600; color:var(--muted); margin:14px 0 6px}
-  input,select,textarea{
-    width:100%; background:var(--bg); border:1px solid var(--line); border-radius:11px; padding:12px 13px;
-    color:var(--text); font:inherit; font-size:14px; outline:none;
-  }
-  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
-  textarea{min-height:104px; resize:vertical}
-  .goals{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
-  .goal{border:1px solid var(--line); background:var(--bg); color:var(--muted); font:inherit; font-size:12.5px;
-        padding:8px 13px; border-radius:999px; cursor:pointer; transition:.15s}
-  .goal[aria-pressed="true"]{border-color:var(--accent); background:rgba(110,86,248,.16); color:var(--text)}
-  .consent{display:flex; gap:9px; align-items:flex-start; margin-top:18px; font-size:12px; color:var(--faint); line-height:1.5}
-  .consent input{width:auto; margin-top:2px}
-  .sent{display:none; margin-top:16px; background:rgba(0,211,174,.1); border:1px solid rgba(0,211,174,.35);
-        color:#8ff0dc; padding:13px 15px; border-radius:12px; font-size:13.5px}
-  .aside{padding:44px 44px 44px 0}
-  .abox{background:var(--surface-2); border:1px solid var(--line); border-radius:16px; padding:20px; margin-bottom:14px}
-  .abox h4{margin:0 0 10px; font-size:14px}
-  .abox p{margin:0 0 6px; font-size:13px; color:var(--muted); line-height:1.6}
-  .abox a{color:var(--accent-2); text-decoration:none}
-  .kv{display:flex; justify-content:space-between; font-size:13px; padding:7px 0; border-bottom:1px solid var(--line); color:var(--muted)}
-  .kv:last-child{border-bottom:0}
-  .kv b{color:var(--text); font-weight:600}
-  .pro-box{border-color:rgba(255,209,102,.3); background:rgba(255,209,102,.07)}
-  .pro-box h4{color:var(--pro)}
-  .page-foot{padding:22px 44px; border-top:1px solid var(--line); color:var(--faint); font-size:12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px}
+  .stats { display: grid; grid-template-columns: repeat(4,1fr); border-bottom: 1px solid var(--base-300); }
+  .stats div { padding: 24px 18px; text-align: center; border-right: 1px solid var(--base-300); }
+  .stats div:last-child { border-right: 0; }
+  .stats .n { font-family: var(--display); font-size: 25px; font-weight: 800; letter-spacing: -.03em; }
+  .stats .l { font-size: 12.5px; color: rgba(248,250,252,.45); margin-top: 5px; }
 
-  @media (max-width:900px){
-    .stats{grid-template-columns:repeat(2,1fr)}
-    .formats{grid-template-columns:1fr}
-    .contact{grid-template-columns:1fr}
-    .aside{padding:0 28px 40px}
-    .form{padding:28px}
-    .sec,.hero{padding:32px 24px}
-    .hero h1{font-size:32px}
-    .menu,.menu-tip{display:none}
+  .sec { padding: 42px 44px; }
+  .sec h2 { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: -.025em; margin-bottom: 8px; }
+  .sec .sub { color: var(--muted); font-size: 14.5px; margin-bottom: 24px; }
+  .formats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .fcard { background: var(--base-200); border: 1px solid var(--base-300); border-radius: 14px; padding: 20px; }
+  .fcard .ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; margin-bottom: 13px;
+               background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary-bright); }
+  .fcard h3 { font-size: 15px; font-weight: 600; margin-bottom: 7px; }
+  .fcard p { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+
+  .contact { display: grid; grid-template-columns: 1.35fr .9fr; gap: 24px; border-top: 1px solid var(--base-300); }
+  .form { padding: 42px 44px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  label { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); margin: 14px 0 6px; }
+  input, textarea { width: 100%; background: var(--base-100); border: 1px solid var(--base-300); border-radius: 10px;
+                    padding: 11px 13px; color: var(--base-content); font: inherit; font-size: 14px; outline: none; }
+  input:focus, textarea:focus { border-color: var(--primary); }
+  textarea { min-height: 104px; resize: vertical; }
+  .goals { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .goal { border: 1px solid var(--base-300); background: var(--base-100); color: var(--muted); font: inherit;
+          font-size: 12.5px; padding: 8px 13px; border-radius: 999px; cursor: pointer; transition: .15s; }
+  .goal[aria-pressed="true"] { border-color: color-mix(in oklab, var(--primary) 50%, transparent);
+                               background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--base-content); }
+  .consent { display: flex; gap: 9px; align-items: flex-start; margin-top: 18px; font-size: 12px;
+             color: rgba(248,250,252,.45); line-height: 1.5; }
+  .consent input { width: auto; margin-top: 2px; }
+  .sent { display: none; margin-top: 16px; background: rgba(56,180,172,.1); border: 1px solid rgba(56,180,172,.35);
+          color: #8fe6e0; padding: 13px 15px; border-radius: 10px; font-size: 13.5px; }
+  .aside { padding: 42px 44px 42px 0; }
+  .abox { background: var(--base-200); border: 1px solid var(--base-300); border-radius: 14px; padding: 20px; margin-bottom: 14px; }
+  .abox h4 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .abox p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 5px; }
+  .abox a { color: var(--brand-teal); text-decoration: none; }
+  .kv { display: flex; justify-content: space-between; font-size: 13px; padding: 7px 0;
+        border-bottom: 1px solid var(--base-300); color: var(--muted); }
+  .kv:last-child { border-bottom: 0; }
+  .kv b { color: var(--base-content); font-weight: 600; }
+  .pro-box { border-color: rgba(245,181,68,.3); background: rgba(245,181,68,.06); }
+  .pro-box h4 { color: var(--gold); }
+  .pfoot { padding: 20px 44px; border-top: 1px solid var(--base-300); color: rgba(248,250,252,.35);
+           font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+  @media (max-width: 900px) {
+    .stats { grid-template-columns: repeat(2,1fr); }
+    .formats { grid-template-columns: 1fr; }
+    .contact { grid-template-columns: 1fr; }
+    .aside { padding: 0 28px 36px; }
+    .form, .sec, .hero { padding: 28px 24px; }
+    .hero h1 { font-size: 30px; }
+    .menu, .menu-tip { display: none; }
   }
 </style>
 </head>
 <body>
 
-<div class="mockbar">
-  <div class="brand"><span class="logo">i</span> Iter</div>
-  <span class="tag">Maqueta de anuncios · v1</span>
-  <div class="switch" role="tablist">
-    <button role="tab" aria-selected="true" data-view="feed">Anuncio en «Para ti»</button>
-    <button role="tab" aria-selected="false" data-view="mkt">Página de marketing</button>
-  </div>
+<div class="intro">
+  <h1>Anuncios en Iter</h1>
+  <p>Dos pantallas: el anuncio dentro de <b>«Para ti»</b> con el mismo formato que una publicación de sesión, y la página de contacto con el equipo de marketing.
+     Paleta, tipografía y componentes tomados de <code>globals.css</code>, <code>FeedTab.jsx</code>, <code>PostCard.jsx</code> y <code>NavigationBar.jsx</code>.</p>
 </div>
 
-<!-- ============ VISTA 1: FEED ============ -->
+<div class="switch" role="tablist">
+  <button role="tab" aria-selected="true" data-view="feed">Anuncio en «Para ti»</button>
+  <button role="tab" aria-selected="false" data-view="mkt">Página de marketing</button>
+</div>
+
+<!-- ══════════════ VISTA 1 — FEED ══════════════ -->
 <section class="view active" id="feed">
-  <p class="view-note">El anuncio usa exactamente el mismo contenedor que una publicación normal: avatar, nombre, texto, media y barra de acciones. Solo cambian tres cosas: la etiqueta <b>Patrocinado</b>, el bloque de llamada a la acción y el pie con «Publicítate» + «Eliminar anuncios con Plan Pro».</p>
+<div class="stage">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>5G &nbsp;·&nbsp; 87%</span></div>
 
-  <div class="stage">
-    <div class="phone-wrap">
-      <div class="phone">
-        <div class="status"><span>9:41</span><span>5G ▮▮▮ 87%</span></div>
-        <div class="app-head">
-          <div class="row">
-            <div class="name">iter</div>
-            <div style="display:flex;gap:8px">
-              <div class="icon-btn">✚</div><div class="icon-btn">♡</div>
-            </div>
-          </div>
-          <div class="tabs"><span class="on">Para ti</span><span>Siguiendo</span><span>Cerca</span></div>
-        </div>
-
-        <div class="feed">
-
-          <!-- publicación normal -->
-          <article class="post">
-            <div class="p-head">
-              <div class="av" style="background:linear-gradient(135deg,#ff9a6b,#ff5c9a)">LM</div>
-              <div class="p-id">
-                <div class="p-name">Lucía Márquez
-                  <svg class="verified" viewBox="0 0 24 24"><path d="M12 2l2.4 2.1 3.2-.4 1 3 2.9 1.4-1 3.1 1 3.1-2.9 1.4-1 3-3.2-.4L12 22l-2.4-2.1-3.2.4-1-3-2.9-1.4 1-3.1-1-3.1L5.4 8l1-3 3.2.4z"/></svg>
-                </div>
-                <div class="p-meta">@luciamq · hace 2 h</div>
-              </div>
-              <button class="dots">···</button>
-            </div>
-            <p class="p-text">Tercer día de ruta y por fin se despejó el valle. Si alguien tiene refugio recomendado para la etapa de mañana, soy toda oídos 🏔️</p>
-            <div class="media" style="background:linear-gradient(160deg,#2b4a6f,#16324f)">
-              <div><div class="mtitle">Foto del usuario</div><div class="msub">contenido orgánico</div></div>
-            </div>
-            <div class="acts">
-              <span><svg class="ico" viewBox="0 0 24 24"><path d="M20.8 8.6c0 4.5-8.8 9.4-8.8 9.4S3.2 13.1 3.2 8.6a4.4 4.4 0 018.8-1 4.4 4.4 0 018.8 1z"/></svg> 1.284</span>
-              <span><svg class="ico" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.2-3.6A8.4 8.4 0 1121 11.5z"/></svg> 96</span>
-              <span><svg class="ico" viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M12 3v13M8 7l4-4 4 4"/></svg> 21</span>
-              <span class="save"><svg class="ico" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></span>
-            </div>
-          </article>
-
-          <!-- ANUNCIO -->
-          <article class="post ad">
-            <div class="p-head">
-              <div class="av" style="background:linear-gradient(135deg,#6e56f8,#00d3ae)">NV</div>
-              <div class="p-id">
-                <div class="p-name">Nordvik Outdoor
-                  <svg class="verified" viewBox="0 0 24 24"><path d="M12 2l2.4 2.1 3.2-.4 1 3 2.9 1.4-1 3.1 1 3.1-2.9 1.4-1 3-3.2-.4L12 22l-2.4-2.1-3.2.4-1-3-2.9-1.4 1-3.1-1-3.1L5.4 8l1-3 3.2.4z"/></svg>
-                  <span class="chip-ad">Patrocinado</span>
-                </div>
-                <div class="p-meta">Anuncio · nordvik.com</div>
-              </div>
-              <button class="dots">···</button>
-            </div>
-            <p class="p-text">La mochila que aguanta 40 km sin rozaduras. Diseñada con guías de montaña, garantía de por vida y envío en 24 h.</p>
-            <div class="media" style="background:linear-gradient(150deg,#3d2f8f,#0f6b62)">
-              <div><div class="mtitle">Creatividad del anunciante</div><div class="msub">1080 × 1080 · imagen o vídeo</div></div>
-            </div>
-            <div class="cta">
-              <div>
-                <div class="dom">nordvik.com</div>
-                <div class="head">Nordvik Trek 45 L — 15 % dto.</div>
-              </div>
-              <button class="btn">Más información</button>
-            </div>
-            <div class="acts">
-              <span><svg class="ico" viewBox="0 0 24 24"><path d="M20.8 8.6c0 4.5-8.8 9.4-8.8 9.4S3.2 13.1 3.2 8.6a4.4 4.4 0 018.8-1 4.4 4.4 0 018.8 1z"/></svg> 412</span>
-              <span><svg class="ico" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.2-3.6A8.4 8.4 0 1121 11.5z"/></svg> 38</span>
-              <span><svg class="ico" viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M12 3v13M8 7l4-4 4 4"/></svg> 12</span>
-              <span class="save"><svg class="ico" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></span>
-            </div>
-          </article>
-
-          <!-- PIE DEL ANUNCIO -->
-          <div class="ad-foot">
-            <button class="promo" data-goto="mkt">
-              <span class="mg">
-                <svg class="ico" viewBox="0 0 24 24" style="stroke:#0a0a0f"><path d="M3 11l18-7-7 18-2.5-8L3 11z"/></svg>
-              </span>
-              <span>
-                <span class="t1">Publicítate en Iter</span>
-                <span class="t2">Contacta con el equipo de marketing</span>
-              </span>
-              <span class="arrow">›</span>
-            </button>
-            <button class="pro-line">Eliminar anuncios con <b>Plan Pro</b></button>
-          </div>
-
-          <!-- publicación normal siguiente -->
-          <article class="post">
-            <div class="p-head">
-              <div class="av" style="background:linear-gradient(135deg,#57d9a3,#2b8ce6)">DR</div>
-              <div class="p-id">
-                <div class="p-name">Diego Ruiz</div>
-                <div class="p-meta">@druiz · hace 4 h</div>
-              </div>
-              <button class="dots">···</button>
-            </div>
-            <p class="p-text">Actualizado el mapa colaborativo con 12 fuentes nuevas. Gracias a todos los que mandasteis coordenadas 🙌</p>
-            <div class="acts">
-              <span><svg class="ico" viewBox="0 0 24 24"><path d="M20.8 8.6c0 4.5-8.8 9.4-8.8 9.4S3.2 13.1 3.2 8.6a4.4 4.4 0 018.8-1 4.4 4.4 0 018.8 1z"/></svg> 730</span>
-              <span><svg class="ico" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.2-3.6A8.4 8.4 0 1121 11.5z"/></svg> 54</span>
-              <span><svg class="ico" viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M12 3v13M8 7l4-4 4 4"/></svg> 9</span>
-              <span class="save"><svg class="ico" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></span>
-            </div>
-          </article>
-        </div>
-
-        <div class="tabbar">
-          <span class="on">⌂</span><span>⌕</span><span>✚</span><span>♡</span><span>◉</span>
-        </div>
-
-        <!-- menú del «···» del anuncio -->
-        <div class="menu">
-          <div>¿Por qué veo este anuncio?<small>Intereses: montaña, viajes</small></div>
-          <div>Ocultar este anuncio</div>
-          <div>Denunciar anuncio</div>
-          <div class="hl">Eliminar anuncios con Plan Pro</div>
-        </div>
-        <div class="menu-tip">Menú del «···» del anuncio →</div>
+    <!-- Cabecera del feed -->
+    <div class="feedhead">
+      <div class="icons">
+        <button class="ghost-btn" aria-label="Buscar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        <button class="ghost-btn" aria-label="Notificaciones">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>
+          <span class="badge-dot">3</span>
+        </button>
+      </div>
+      <div class="ftabs">
+        <button class="on"><span>Para ti</span></button>
+        <button><span>Siguiendo</span></button>
       </div>
     </div>
 
-    <ul class="callouts">
-      <li><h4>1 · Mismo contenedor que un post</h4>Nada de banners: el anuncio hereda tipografía, avatar, media y acciones (me gusta, comentar, compartir, guardar) para no romper el scroll.</li>
-      <li><h4>2 · Etiqueta «Patrocinado»</h4>Siempre visible junto al nombre y repetida en la metainformación («Anuncio · dominio»). Cumple con la obligación de identificar la publicidad.</li>
-      <li><h4>3 · Bloque de acción</h4>Dominio + titular + botón. Es la única pieza que un post orgánico no tiene.</li>
-      <li><h4>4 · «Publicítate en Iter»</h4>Justo debajo, fuera de la tarjeta, con peso visual medio. Lleva a la página de contacto con el equipo de marketing.</li>
-      <li><h4>5 · «Eliminar anuncios con Plan Pro»</h4>Una línea de 11 px, centrada y sin fondo: presente pero nunca intrusiva. Se repite dentro del menú «···».</li>
-      <li><h4>Frecuencia sugerida</h4>1 anuncio cada 6–8 publicaciones, y el pie con las dos opciones solo en el primero de cada sesión para no saturar.</li>
-    </ul>
+    <div class="scroll">
+
+      <!-- ── Post de sesión (contenido orgánico) ── -->
+      <article class="card">
+        <div class="p-head">
+          <div class="p-left">
+            <div class="avatar" style="background:#9333ea">M</div>
+            <div>
+              <div class="p-name">
+                <h3>Marina Salas</h3>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#3b82f6" stroke="#020617" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+                <span class="p-time">Hace 2 h</span>
+              </div>
+              <div class="chips">
+                <span class="chip-career">Medicina</span>
+                <span class="chip-uni">UCM</span>
+                <span class="chip-place">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  Biblioteca de Ciencias
+                </span>
+              </div>
+            </div>
+          </div>
+          <button class="kebab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
+        </div>
+
+        <div class="p-title">
+          <h2>Bioquímica</h2>
+          <div class="eff green"><div class="l">Efectivo</div><div class="v">2h 14m</div></div>
+        </div>
+
+        <div class="bar-wrap">
+          <div class="bar">
+            <div style="width:34%;background:#4ade80"></div>
+            <div style="width:8%;background:#3b82f6"></div>
+            <div style="width:30%;background:#4ade80"></div>
+            <div style="width:7%;background:#3b82f6"></div>
+            <div style="width:21%;background:#4ade80"></div>
+          </div>
+          <div class="marks"><span>0:00</span><span>0:38</span><span>1:17</span><span>1:55</span><span>2:34</span></div>
+          <div class="legend">
+            <div class="keys">
+              <div class="k"><span class="dot" style="background:#4ade80"></span>Efectividad <b style="color:#4ade80;font-weight:500;margin-left:3px">87%</b></div>
+              <div class="k"><span class="dot" style="background:#3b82f6"></span>Descanso</div>
+            </div>
+            <span class="mode">Estudio</span>
+          </div>
+        </div>
+
+        <div class="p-desc">Tema 7 entero y los esquemas del ciclo de Krebs pasados a limpio. Mañana repaso antes del seminario.</div>
+
+        <div class="acts">
+          <span class="it"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>34</span>
+          <span class="it"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>6</span>
+          <span class="it"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg></span>
+          <span class="share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Compartir</span>
+        </div>
+      </article>
+
+      <!-- ══ ANUNCIO — misma tarjeta, tres diferencias ══ -->
+      <article class="card">
+        <div class="p-head">
+          <div class="p-left">
+            <div class="avatar" style="background:#0f766e">N</div>
+            <div>
+              <div class="p-name">
+                <h3>Notea</h3>
+                <span class="chip-ad">Patrocinado</span>
+              </div>
+              <div class="chips">
+                <span class="chip-uni">notea.es</span>
+              </div>
+            </div>
+          </div>
+          <button class="kebab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
+        </div>
+
+        <div class="p-title">
+          <h2>Libretas que aguantan el cuatrimestre</h2>
+        </div>
+
+        <div class="photo" style="background:linear-gradient(150deg,#134e4a,#0f172a)">
+          <div>
+            <div class="t">Creatividad del anunciante</div>
+            <div class="s">1080 × 1080 · imagen o vídeo</div>
+          </div>
+        </div>
+
+        <div class="p-desc">Papel de 100 g que no traspasa, pauta de 5 mm y tapa dura cosida. Envío gratis a partir de 20 €.</div>
+
+        <div class="adcta">
+          <div>
+            <div class="dom">notea.es</div>
+            <div class="h">Pack universidad — 3 libretas</div>
+          </div>
+          <button class="btn">Ver colección</button>
+        </div>
+
+        <div class="acts">
+          <span class="it"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>12</span>
+          <span class="it"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>2</span>
+          <span class="it"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg></span>
+          <span class="share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Compartir</span>
+        </div>
+      </article>
+
+      <!-- Pie del anuncio -->
+      <div class="adfoot">
+        <button class="promo" data-goto="mkt">
+          <span class="ic">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+          </span>
+          <span>
+            <span class="t1">Publicítate en Iter</span>
+            <span class="t2">Escribe al equipo de marketing</span>
+          </span>
+          <span class="ch"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+        <button class="pro-line">Quitar anuncios con <b>Iter Pro</b></button>
+      </div>
+
+      <!-- ── Siguiente post orgánico ── -->
+      <article class="card">
+        <div class="p-head">
+          <div class="p-left">
+            <div class="avatar" style="background:#0d9488">A</div>
+            <div>
+              <div class="p-name">
+                <h3>Álvaro Ferrer</h3>
+                <span class="p-time">Hace 5 h</span>
+              </div>
+              <div class="chips">
+                <span class="chip-career">Ing. Informática</span>
+                <span class="chip-uni">UPM</span>
+              </div>
+            </div>
+          </div>
+          <button class="kebab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
+        </div>
+        <div class="p-title">
+          <h2>Algoritmos</h2>
+          <div class="eff lime"><div class="l">Efectivo</div><div class="v">48m</div></div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar">
+            <div style="width:26%;background:#a3e635"></div>
+            <div style="width:14%;background:#3b82f6"></div>
+            <div style="width:38%;background:#a3e635"></div>
+            <div style="width:22%;background:#3b82f6"></div>
+          </div>
+          <div class="marks"><span>0:00</span><span>0:19</span><span>0:38</span><span>0:57</span><span>1:16</span></div>
+          <div class="legend">
+            <div class="keys">
+              <div class="k"><span class="dot" style="background:#a3e635"></span>Efectividad <b style="color:#a3e635;font-weight:500;margin-left:3px">63%</b></div>
+              <div class="k"><span class="dot" style="background:#3b82f6"></span>Descanso</div>
+            </div>
+            <span class="mode">Ejercicios</span>
+          </div>
+        </div>
+        <div class="p-desc">Grafos me está costando más de lo que pensaba. Acepto recomendaciones de problemas.</div>
+        <div class="acts">
+          <span class="it"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>19</span>
+          <span class="it"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>4</span>
+          <span class="it"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg></span>
+          <span class="share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Compartir</span>
+        </div>
+      </article>
+    </div>
+
+    <!-- Barra de navegación -->
+    <nav class="navbar">
+      <div class="inner">
+        <span class="on"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+        <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+        <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2.5"/><path d="m10.2 6.3-3.9 3.9"/><circle cx="4.5" cy="12" r="2.5"/><path d="M7 12h10"/><circle cx="19.5" cy="12" r="2.5"/><path d="m13.8 17.7 3.9-3.9"/><circle cx="12" cy="19.5" r="2.5"/></svg></span>
+        <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></span>
+        <span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      </div>
+    </nav>
+
   </div>
+
+  <ul class="notes">
+    <li class="menu-state">
+      <div class="cap">Al pulsar el <b>⋮</b> del anuncio</div>
+      <div class="menu">
+        <button>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          ¿Por qué veo este anuncio?
+        </button>
+        <button>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><path d="m2 2 20 20"/></svg>
+          Ocultar este anuncio
+        </button>
+        <button class="danger">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg>
+          Denunciar anuncio
+        </button>
+        <button class="pro">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 3.2 3 8v8l8.5 4.8a1 1 0 0 0 1 0L21 16V8l-8.5-4.8a1 1 0 0 0-1 0Z"/><path d="m7.5 10 4.5 2.5L16.5 10"/></svg>
+          Quitar anuncios con Iter Pro
+        </button>
+      </div>
+    </li>
+    <li><h4>1 · La misma tarjeta que un post</h4>Reutiliza <b>PostCard</b> tal cual: cabecera con avatar de 40 px, titular en Plus Jakarta 24/800, foto a sangre, descripción y barra de acciones. Nada de banner ni de marco propio.</li>
+    <li><h4>2 · Sólo tres diferencias</h4>La etiqueta <b>Patrocinado</b> donde va la hora, el dominio donde van los chips de carrera y universidad, y el bloque de acción sobre la barra de acciones.</li>
+    <li><h4>3 · Sin barra de cronografía</h4>El anuncio no tiene sesión, así que no lleva ni el recuadro de <b>Efectivo</b> ni la barra de efectividad. Ese hueco lo ocupa el titular, que puede ser más largo.</li>
+    <li><h4>4 · «Publicítate en Iter»</h4>Fuera de la tarjeta, en <b>base-200</b> para que se lea como un módulo del sistema y no como parte del anuncio. Lleva a la página de marketing.</li>
+    <li><h4>5 · «Quitar anuncios con Iter Pro»</h4>Once píxeles, centrada, sin fondo. Presente pero por debajo de todo lo demás. Se repite dentro del menú del anuncio, donde ya está quien quiere que ese anuncio desaparezca.</li>
+    <li><h4>Frecuencia</h4>Propuesta: un anuncio cada 6–8 publicaciones, y el pie con las dos opciones sólo en el primero de cada sesión.</li>
+  </ul>
+</div>
 </section>
 
-<!-- ============ VISTA 2: PÁGINA DE MARKETING ============ -->
+<!-- ══════════════ VISTA 2 — MARKETING ══════════════ -->
 <section class="view" id="mkt">
-  <p class="view-note">Destino del enlace «Contacta con el equipo de marketing». Datos de ejemplo — sustituir por métricas reales antes de publicar.</p>
+<div class="page">
+  <div class="pnav">
+    <div class="logo">Iter <span>/ Publicidad</span></div>
+    <div class="links"><span>Formatos</span><span>Audiencia</span><span>Normas</span><span>Contacto</span></div>
+    <span class="cta">Hablar con el equipo</span>
+  </div>
 
-  <div class="page">
-    <div class="page-nav">
-      <div class="brand"><span class="logo">i</span> Iter <span style="color:var(--faint);font-weight:500">/ Publicidad</span></div>
-      <div class="links"><span>Formatos</span><span>Métricas</span><span>Precios</span><span>Casos</span></div>
-      <span class="cta-sm">Hablar con ventas</span>
+  <div class="hero">
+    <div class="eyebrow">Iter para marcas</div>
+    <h1>Llega a quien de verdad<br>está estudiando</h1>
+    <p>Anuncios nativos en el feed «Para ti», con el mismo formato que una publicación de sesión. Una audiencia de estudiantes universitarios que abre la app cada día para ponerse a trabajar.</p>
+    <div class="btns">
+      <button class="b-pri" id="go-form">Contactar con el equipo</button>
+      <button class="b-sec">Descargar kit de medios</button>
     </div>
+    <div class="fine">Quien tiene Iter Pro no ve anuncios: las campañas se sirven sólo sobre la audiencia con plan gratuito.</div>
+  </div>
 
-    <div class="hero">
-      <div class="kicker">Iter para marcas</div>
-      <h1>Tu marca, dentro del <em>viaje</em></h1>
-      <p>Anuncios nativos en el feed «Para ti» que se leen como una publicación más. Segmentación por intereses, ubicación y tipo de ruta, sin salir de la experiencia de Iter.</p>
-      <div class="btns">
-        <button class="b-pri" id="go-form">Contactar con el equipo</button>
-        <button class="b-sec">Descargar kit de medios (PDF)</button>
+  <div class="stats">
+    <div><div class="n">00 K</div><div class="l">usuarios activos / mes</div></div>
+    <div><div class="n">00 min</div><div class="l">sesión media diaria</div></div>
+    <div><div class="n">00 %</div><div class="l">estudiantes universitarios</div></div>
+    <div><div class="n">18–26</div><div class="l">franja de edad principal</div></div>
+  </div>
+  <div style="padding:12px 44px;border-bottom:1px solid var(--base-300);font-size:11.5px;color:rgba(248,250,252,.35);text-align:center">
+    Cifras a rellenar con datos reales de la app: aquí no hay ninguna inventada.
+  </div>
+
+  <div class="sec">
+    <h2>Formatos</h2>
+    <p class="sub">Todos se integran en el feed con la etiqueta «Patrocinado» visible.</p>
+    <div class="formats">
+      <div class="fcard">
+        <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 15l5-4 4 3 3-2 6 5"/></svg></div>
+        <h3>Publicación patrocinada</h3>
+        <p>El formato principal, el de la maqueta: titular, creatividad, texto y botón de acción dentro del feed «Para ti».</p>
       </div>
-      <div class="fine">Los usuarios con Plan Pro no ven anuncios. Las campañas se sirven solo sobre la audiencia con plan gratuito.</div>
-    </div>
-
-    <div class="stats">
-      <div><div class="n">240 K</div><div class="l">usuarios activos / mes</div></div>
-      <div><div class="n">18 min</div><div class="l">sesión media diaria</div></div>
-      <div><div class="n">4,1 %</div><div class="l">CTR medio en «Para ti»</div></div>
-      <div><div class="n">25–44</div><div class="l">franja de edad principal</div></div>
-    </div>
-
-    <div class="sec">
-      <h2>Formatos disponibles</h2>
-      <p class="sub">Todos se integran en el feed con la etiqueta «Patrocinado».</p>
-      <div class="formats">
-        <div class="fcard">
-          <div class="ic"><svg class="ico" viewBox="0 0 24 24" style="stroke:#a99cff"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 15l5-4 4 3 3-2 6 5"/></svg></div>
-          <h3>Publicación patrocinada</h3>
-          <p>Imagen o vídeo con titular, dominio y botón de acción. El formato principal, idéntico a un post.</p>
-          <span class="px">CPM desde 4,50 € · mín. 300 €/campaña</span>
-        </div>
-        <div class="fcard">
-          <div class="ic"><svg class="ico" viewBox="0 0 24 24" style="stroke:#a99cff"><rect x="7" y="3" width="10" height="18" rx="3"/><path d="M4 8v8M20 8v8"/></svg></div>
-          <h3>Historia patrocinada</h3>
-          <p>Vertical a pantalla completa entre historias, con deslizar para abrir enlace.</p>
-          <span class="px">CPM desde 6,00 € · mín. 500 €/campaña</span>
-        </div>
-        <div class="fcard">
-          <div class="ic"><svg class="ico" viewBox="0 0 24 24" style="stroke:#a99cff"><path d="M4 6h10v12H4zM17 8h3v8h-3"/></svg></div>
-          <h3>Carrusel de producto</h3>
-          <p>Hasta 5 tarjetas deslizables con precio y enlace propio en cada una. Ideal para catálogo.</p>
-          <span class="px">CPC desde 0,28 € · mín. 400 €/campaña</span>
-        </div>
+      <div class="fcard">
+        <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="11" height="12" rx="2"/><path d="M18 8v8"/><path d="M21 10v4"/></svg></div>
+        <h3>Carrusel</h3>
+        <p>Hasta cinco tarjetas deslizables con enlace propio en cada una. Para catálogo o para varias referencias de un mismo producto.</p>
       </div>
-    </div>
-
-    <div class="contact" id="form">
-      <div class="sec form">
-        <h2>Cuéntanos tu campaña</h2>
-        <p class="sub">Respondemos en menos de 48 h laborables con una propuesta y disponibilidad de inventario.</p>
-        <form id="mkt-form">
-          <div class="row2">
-            <div><label for="n">Nombre y apellidos</label><input id="n" required placeholder="Ana Torres"></div>
-            <div><label for="e">Email corporativo</label><input id="e" type="email" required placeholder="ana@marca.com"></div>
-          </div>
-          <div class="row2">
-            <div><label for="c">Empresa</label><input id="c" required placeholder="Nordvik Outdoor"></div>
-            <div><label for="w">Sitio web</label><input id="w" placeholder="nordvik.com"></div>
-          </div>
-          <div class="row2">
-            <div><label for="b">Presupuesto estimado</label>
-              <select id="b">
-                <option>Menos de 1.000 €</option><option>1.000 € – 5.000 €</option>
-                <option>5.000 € – 20.000 €</option><option>Más de 20.000 €</option><option>Aún por definir</option>
-              </select>
-            </div>
-            <div><label for="d">Fechas previstas</label><input id="d" placeholder="Octubre – noviembre"></div>
-          </div>
-          <label>Objetivo de la campaña</label>
-          <div class="goals">
-            <button type="button" class="goal" aria-pressed="true">Notoriedad</button>
-            <button type="button" class="goal" aria-pressed="false">Tráfico web</button>
-            <button type="button" class="goal" aria-pressed="false">Ventas</button>
-            <button type="button" class="goal" aria-pressed="false">Descargas de app</button>
-            <button type="button" class="goal" aria-pressed="false">Evento</button>
-          </div>
-          <label for="m">Mensaje</label>
-          <textarea id="m" placeholder="Contexto de la marca, público al que queréis llegar, formatos que os interesan…"></textarea>
-          <div class="consent"><input type="checkbox" id="ck" required><label for="ck" style="margin:0;font-weight:400">Acepto la política de privacidad y que Iter use estos datos para responder a mi solicitud.</label></div>
-          <div style="margin-top:20px"><button class="b-pri" type="submit">Enviar solicitud</button></div>
-          <div class="sent" id="sent">✓ Solicitud enviada. Te escribimos a tu email en menos de 48 h laborables con la propuesta.</div>
-        </form>
+      <div class="fcard">
+        <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/></svg></div>
+        <h3>Patrocinio de reto</h3>
+        <p>Una marca acompaña un reto de estudio de temporada: aparece en la portada del reto y en el resumen final de quien lo completa.</p>
       </div>
-
-      <div class="aside">
-        <div class="abox">
-          <h4>Contacto directo</h4>
-          <p><a href="#">marketing@iter.app</a></p>
-          <p>+34 900 000 000</p>
-          <p>Lun – Vie · 9:00 – 18:00 (CET)</p>
-        </div>
-        <div class="abox">
-          <h4>Cómo trabajamos</h4>
-          <div class="kv"><span>Respuesta inicial</span><b>&lt; 48 h</b></div>
-          <div class="kv"><span>Propuesta y plan</span><b>3–5 días</b></div>
-          <div class="kv"><span>Revisión creativa</span><b>24 h</b></div>
-          <div class="kv"><span>Inversión mínima</span><b>300 €</b></div>
-        </div>
-        <div class="abox pro-box">
-          <h4>Nota sobre Plan Pro</h4>
-          <p>Los suscriptores de Plan Pro navegan sin anuncios. El alcance estimado de cada campaña excluye a esa audiencia y se calcula solo sobre usuarios con plan gratuito.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="page-foot">
-      <span>© 2026 Iter · Publicidad</span>
-      <span>Política de anuncios · Privacidad · Kit de medios</span>
     </div>
   </div>
+
+  <div class="contact" id="form">
+    <div class="form">
+      <h2 style="font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:-.025em;margin-bottom:8px">Cuéntanos tu campaña</h2>
+      <p class="sub">Respondemos en menos de 48 h laborables con formatos disponibles y una propuesta a medida.</p>
+      <form id="mkt-form">
+        <div class="row2">
+          <div><label for="n">Nombre y apellidos</label><input id="n" required placeholder="Ana Torres"></div>
+          <div><label for="e">Email de contacto</label><input id="e" type="email" required placeholder="ana@marca.com"></div>
+        </div>
+        <div class="row2">
+          <div><label for="c">Empresa</label><input id="c" required placeholder="Notea"></div>
+          <div><label for="w">Sitio web</label><input id="w" placeholder="notea.es"></div>
+        </div>
+        <label for="d">Fechas previstas</label>
+        <input id="d" placeholder="Octubre – noviembre, coincidiendo con la vuelta a clase">
+        <label>Objetivo de la campaña</label>
+        <div class="goals">
+          <button type="button" class="goal" aria-pressed="true">Notoriedad</button>
+          <button type="button" class="goal" aria-pressed="false">Tráfico web</button>
+          <button type="button" class="goal" aria-pressed="false">Ventas</button>
+          <button type="button" class="goal" aria-pressed="false">Descargas de app</button>
+          <button type="button" class="goal" aria-pressed="false">Evento</button>
+        </div>
+        <label for="m">Cuéntanos más</label>
+        <textarea id="m" placeholder="Qué vendéis, a qué público queréis llegar y qué formato os encaja."></textarea>
+        <div class="consent">
+          <input type="checkbox" id="ck" required>
+          <label for="ck" style="margin:0;font-weight:400">Acepto la política de privacidad y que Iter use estos datos para responder a mi solicitud.</label>
+        </div>
+        <div style="margin-top:20px"><button class="b-pri" type="submit">Enviar solicitud</button></div>
+        <div class="sent" id="sent">✓ Solicitud enviada. Te escribimos a tu email en menos de 48 h laborables.</div>
+      </form>
+    </div>
+
+    <div class="aside">
+      <div class="abox">
+        <h4>Contacto directo</h4>
+        <p><a href="#">marketing@itergit.app</a></p>
+        <p>Lun – Vie · 9:00 – 18:00 (CET)</p>
+      </div>
+      <div class="abox">
+        <h4>Cómo trabajamos</h4>
+        <div class="kv"><span>Respuesta inicial</span><b>&lt; 48 h</b></div>
+        <div class="kv"><span>Propuesta y plan</span><b>3–5 días</b></div>
+        <div class="kv"><span>Revisión creativa</span><b>24 h</b></div>
+      </div>
+      <div class="abox pro-box">
+        <h4>Nota sobre Iter Pro</h4>
+        <p>Quien tiene Iter Pro navega sin anuncios. El alcance de cada campaña se calcula sólo sobre los usuarios con plan gratuito.</p>
+      </div>
+      <div class="abox">
+        <h4>Qué no aceptamos</h4>
+        <p>Nada que compita con el propósito de la app: apuestas, trabajos académicos hechos por encargo, ni anuncios que imiten una publicación real sin la etiqueta «Patrocinado».</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pfoot">
+    <span>© 2026 Iter · Publicidad</span>
+    <span>Normas de publicidad · Privacidad · Kit de medios</span>
+  </div>
+</div>
 </section>
 
 <script>
   const views = document.querySelectorAll('.view');
   const tabs = document.querySelectorAll('.switch button');
-  function show(id){
+  function show(id) {
     views.forEach(v => v.classList.toggle('active', v.id === id));
     tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === id)));
-    window.scrollTo({top:0, behavior:'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.view)));
   document.querySelectorAll('[data-goto]').forEach(el => el.addEventListener('click', () => show(el.dataset.goto)));
@@ -508,7 +661,7 @@
   }));
 
   document.getElementById('go-form').addEventListener('click', () => {
-    document.getElementById('form').scrollIntoView({behavior:'smooth'});
+    document.getElementById('form').scrollIntoView({ behavior: 'smooth' });
   });
 
   document.getElementById('mkt-form').addEventListener('submit', e => {
@@ -516,10 +669,21 @@
     document.getElementById('sent').style.display = 'block';
   });
 
-  document.querySelector('.pro-line').addEventListener('click', function(){
-    this.innerHTML = 'Plan Pro · 4,99 €/mes — sin anuncios, ver planes ›';
-    this.style.color = 'var(--pro)';
-  });
+  // El marco muestra el anuncio ya en pantalla: se ancla el scroll al final
+  // del post anterior, que es como llega el usuario al bajar por el feed.
+  function anclarAnuncio() {
+    const sc = document.querySelector('.scroll');
+    const ad = document.querySelectorAll('.card')[1];
+    if (sc && ad) sc.scrollTop = ad.offsetTop - sc.offsetTop - 46;
+  }
+  anclarAnuncio();
+  document.fonts && document.fonts.ready.then(anclarAnuncio);
+
+  // Las pestañas del feed son decorativas: sólo mueven el subrayado.
+  document.querySelectorAll('.ftabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.ftabs button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+  }));
 </script>
 </body>
 </html>

@@ -162,7 +162,7 @@ body.show-guides .guides{display:block}
 .verified{width:38px;height:38px;flex:0 0 auto}
 .muted{color:var(--t2)} .dim{color:var(--t3)}
 .btn{display:flex;align-items:center;justify-content:center;gap:22px;font-size:44px;font-weight:700;
-  border-radius:34px;height:132px;background:var(--blue);color:#fff}
+  border-radius:28px;height:132px;background:var(--blue);color:#fff}
 .btn.orange{background:linear-gradient(90deg,#f6a316,#ef4b23)}
 .divider{height:2px;background:rgba(255,255,255,.07);margin:0 var(--p)}
 
@@ -172,14 +172,15 @@ body.show-guides .guides{display:block}
 .tabs2 div{flex:1;text-align:center;font-size:44px;font-weight:700;color:var(--t2);padding-bottom:26px;
   border-bottom:4px solid rgba(255,255,255,.08)}
 .tabs2 div.on{color:var(--blue-2);border-bottom-color:var(--blue)}
-.feed{flex:1 1 auto;overflow:hidden;padding:36px var(--p) 0}
-.post{background:var(--card);border:2px solid var(--line);border-radius:48px;overflow:hidden;margin-bottom:36px}
-.post-in{padding:36px 38px 34px}
+.feed{flex:1 1 auto;overflow:hidden;padding:34px 0 0}
+.post{background:none}
+.post-in{padding:0 var(--p) 32px}
+.post-sep{height:2px;background:rgba(255,255,255,.07);margin:36px 0 38px}
 .post-top{display:flex;align-items:flex-start;gap:24px}
 .post-top .who{flex:1;min-width:0}
-.nameline{display:flex;align-items:center;gap:14px;font-size:38px;font-weight:700}
+.nameline{display:flex;align-items:center;gap:14px;font-size:42px;font-weight:700}
 .nameline .when{color:var(--t3);font-weight:500;font-size:32px;margin-left:6px}
-.tagline{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px}
+.tagline{display:flex;flex-direction:column;align-items:flex-start;gap:14px;margin-top:18px}
 .tagline span{font-size:28px;font-weight:600;padding:11px 22px;border-radius:999px;
   border:2px solid rgba(108,155,255,.45);color:var(--blue-2)}
 .tagline span.plain{border-color:rgba(255,255,255,.14);color:var(--t2)}
@@ -198,7 +199,7 @@ body.show-guides .guides{display:block}
 .legend .kind{font-size:28px;font-weight:700;color:var(--t2);background:rgba(255,255,255,.07);
   padding:12px 26px;border-radius:999px}
 /* vista previa del material de estudio */
-.doc{height:520px;background:#eef1f7;position:relative;overflow:hidden}
+.doc{height:560px;background:#eef1f7;position:relative;overflow:hidden}
 .doc .bar{height:64px;background:#dfe4ee;display:flex;align-items:center;gap:16px;padding:0 30px}
 .doc .bar i{width:20px;height:20px;border-radius:50%;background:#b9c1d1}
 .doc .bar b{font-size:26px;color:#6d7688;font-weight:600;margin-left:14px}
@@ -212,7 +213,7 @@ body.show-guides .guides{display:block}
 
 /* ---------- 2 · CRONÓMETRO ---------- */
 .center{text-align:center;padding:0 var(--p);margin-top:80px}
-.center h2{margin:12px 0 0;font-size:66px;font-weight:800;letter-spacing:-.035em}
+.center h2{margin:12px 0 0;font-size:62px;font-weight:800;letter-spacing:-.035em}
 .center p{margin:20px 0 0;font-size:36px;color:var(--t2);line-height:1.35}
 .seg{display:flex;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.07);
   border-radius:999px;padding:10px;margin:48px var(--p) 0}
@@ -223,7 +224,7 @@ body.show-guides .guides{display:block}
 .glass-glow{position:absolute;width:900px;height:900px;border-radius:50%;
   background:radial-gradient(circle,rgba(37,99,245,.20),transparent 62%)}
 .glass{position:relative}
-.glass-face{position:absolute;top:126px;left:0;right:0;text-align:center}
+.glass-face{position:absolute;top:150px;left:0;right:0;text-align:center}
 .glass-face .t{font-size:110px;font-weight:300;letter-spacing:-.02em}
 .glass-face .st{margin-top:16px;font-size:36px;color:var(--t3)}
 .cta{padding:0 var(--p) 10px;display:flex;flex-direction:column;gap:26px}
@@ -514,6 +515,7 @@ u => {
         </div>
       </div>
       ${doc1}
+      <div class="post-sep"></div>
     </div>
 
     <div class="post">
@@ -565,7 +567,7 @@ u => `<div class="screen">
   <div class="glass-wrap">
     <div class="glass-glow"></div>
     <div class="glass">
-      <svg width="700" height="980" viewBox="0 0 300 430" fill="none"
+      <svg width="566" height="1020" viewBox="0 0 300 430" fill="none"
            stroke="#26314a" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
         <path d="M46 22H254c0 0-4 140-104 200C50 162 46 22 46 22Z"/>
         <path d="M46 408H254c0 0-4-140-104-200C50 268 46 408 46 408Z"/>
@@ -581,6 +583,7 @@ u => `<div class="screen">
     <div class="btn">${ic('play','ic sm')} Empezar sesión</div>
     <div class="btn orange">${ic('sparkles','ic sm')} Unirse a una Jam</div>
   </div>
+  <div class="divider" style="margin-top:36px"></div>
   ${tabbar(1)}
 </div>`,
 

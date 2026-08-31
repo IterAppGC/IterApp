@@ -141,8 +141,8 @@ body.show-guides .guides{display:block}
 .sb .net{font-size:40px;font-weight:600;letter-spacing:-.01em}
 
 /* barra de pestañas — 5 iconos, sin etiquetas (como en Iter) */
-.tabbar{position:relative;z-index:10;flex:0 0 auto;height:230px;border-top:2px solid rgba(255,255,255,.07);
-  background:rgba(8,11,20,.94);display:flex;align-items:flex-start;padding:26px 40px 0}
+.tabbar{position:relative;z-index:10;flex:0 0 auto;height:206px;border-top:2px solid rgba(255,255,255,.07);
+  background:rgba(8,11,20,.94);display:flex;align-items:flex-start;padding:20px 40px 0}
 .tab{flex:1;display:grid;place-items:center;color:#7c8499}
 .tab span{width:112px;height:92px;display:grid;place-items:center;border-radius:28px}
 .tab .ic{width:66px;height:66px}
@@ -162,7 +162,7 @@ body.show-guides .guides{display:block}
 .verified{width:38px;height:38px;flex:0 0 auto}
 .muted{color:var(--t2)} .dim{color:var(--t3)}
 .btn{display:flex;align-items:center;justify-content:center;gap:22px;font-size:44px;font-weight:700;
-  border-radius:28px;height:132px;background:var(--blue);color:#fff}
+  border-radius:28px;height:170px;background:var(--blue);color:#fff}
 .btn.orange{background:linear-gradient(90deg,#f6a316,#ef4b23)}
 .divider{height:2px;background:rgba(255,255,255,.07);margin:0 var(--p)}
 
@@ -221,13 +221,28 @@ body.show-guides .guides{display:block}
   color:var(--t2);padding:26px 0;border-radius:999px}
 .seg div.on{background:#0d1220;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.45)}
 .glass-wrap{flex:1 1 auto;display:grid;place-items:center;position:relative}
-.glass-glow{position:absolute;width:900px;height:900px;border-radius:50%;
-  background:radial-gradient(circle,rgba(37,99,245,.20),transparent 62%)}
 .glass{position:relative}
-.glass-face{position:absolute;top:150px;left:0;right:0;text-align:center}
-.glass-face .t{font-size:110px;font-weight:300;letter-spacing:-.02em}
-.glass-face .st{margin-top:16px;font-size:36px;color:var(--t3)}
-.cta{padding:0 var(--p) 10px;display:flex;flex-direction:column;gap:26px}
+.glass-face{position:absolute;left:0;right:0;text-align:center}
+.glass-face.top{top:150px}
+.glass-face.bot{top:780px}
+.glass-face .t{font-size:98px;font-weight:300;letter-spacing:-.02em}
+.glass-face .pct{font-size:74px;font-weight:500;color:#43c2b0;letter-spacing:-.02em}
+.glass-face .st{margin-top:14px;font-size:38px;color:var(--t3)}
+.runrow{display:flex;align-items:center;justify-content:space-between;padding:0 var(--p);margin-top:90px}
+.runrow .st{display:flex;align-items:center;gap:20px;font-size:40px;color:var(--t2)}
+.runrow .st i{width:22px;height:22px;border-radius:50%;background:#1fae55}
+.runrow .exp{color:var(--t2)}
+.splits{display:flex;justify-content:center;gap:170px;margin-top:56px;text-align:center}
+.splits small{display:block;font-size:34px;letter-spacing:.11em;color:#7b8398;font-weight:500}
+.splits b{display:block;font-size:62px;font-weight:600;margin-top:16px;letter-spacing:-.01em}
+.controls{display:flex;justify-content:center;align-items:center;gap:56px;margin-top:56px}
+.cb{width:214px;height:214px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.cb .ic{width:82px;height:82px;stroke-width:2.2}
+.cb.x{background:#22262f;color:#c9cfdc}
+.cb.blue{background:#1a6cf5;box-shadow:0 24px 50px -18px rgba(26,108,245,.8)}
+.cb.green{background:#11a055;box-shadow:0 24px 50px -18px rgba(17,160,85,.7)}
+.hint{text-align:center;font-size:38px;color:var(--t3);margin-top:46px;padding:0 var(--p)}
+.cta{padding:0 var(--p) 10px;display:flex;flex-direction:column;gap:26px;margin-top:44px}
 
 /* ---------- 3 · JAM SESSIONS ---------- */
 .jam-duo{display:flex;gap:26px;padding:0 var(--p);margin-top:36px}
@@ -420,6 +435,10 @@ const I = {
   chevR:'<path d="m9.6 4.8 7.2 7.2-7.2 7.2"/>',
   chevD:'<path d="m4.8 9 7.2 7.2L19.2 9"/>',
   trash:'<path d="M4.6 6.6h14.8M9.4 6.6V4.4h5.2v2.2M6.8 6.6l1 13.2h8.4l1-13.2"/>',
+  expand:'<path d="M14.4 3.6h6v6M20.4 3.6 13 11M9.6 20.4h-6v-6M3.6 20.4 11 13"/>',
+  coffee:'<path d="M3.6 8.4h13.2v6a5.4 5.4 0 0 1-5.4 5.4H9a5.4 5.4 0 0 1-5.4-5.4z"/><path d="M16.8 9.8h1.6a2.7 2.7 0 0 1 0 5.4h-1.6"/><path d="M7.6 3.2v2.2M10.2 2.6v2.8M12.8 3.2v2.2"/>',
+  close:'<path d="M6.6 6.6 17.4 17.4M17.4 6.6 6.6 17.4"/>',
+  tick:'<path d="m5.4 12.4 4.6 4.6 8.6-9.6"/>',
   branch:'<circle cx="7" cy="6" r="2.3"/><circle cx="7" cy="18" r="2.3"/><circle cx="17" cy="9" r="2.3"/><path d="M7 8.3v7.4M14.7 9c-4 0-5.6 2.2-5.6 6.8"/>'
 };
 const ic = (n, cls='ic') => `<svg class="${cls}" viewBox="0 0 24 24">${I[n]}</svg>`;
@@ -555,32 +574,44 @@ u => {
 /* ---------- 2 · CRONÓMETRO ------------------------------------------- */
 u => `<div class="screen">
   ${statusbar()}
-  <div class="center">
-    <h2>Cronómetro de estudio</h2>
-    <p>Selecciona tu modo y empieza a rastrear tu tiempo</p>
-  </div>
-  <div class="seg">
-    <div class="on">${ic('stopwatch','ic sm')} Cronómetro</div>
-    <div>${ic('hourglass','ic sm')} Temporizador</div>
+  <div class="center"><h2>Cronómetro de estudio</h2></div>
+  <div class="runrow">
+    <span class="st"><i></i>Enfocado</span>
+    <span class="exp">${ic('expand','ic sm')}</span>
   </div>
 
   <div class="glass-wrap">
-    <div class="glass-glow"></div>
     <div class="glass">
-      <svg width="566" height="1020" viewBox="0 0 300 430" fill="none"
-           stroke="#26314a" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M46 22H254c0 0-4 140-104 200C50 162 46 22 46 22Z"/>
-        <path d="M46 408H254c0 0-4-140-104-200C50 268 46 408 46 408Z"/>
+      <svg width="819" height="1174" viewBox="0 0 300 430" fill="none"
+           stroke="#43c2b0" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M46 22H254C254 100 240 175 150 230 60 175 46 100 46 22Z"/>
+        <path d="M46 408H254C254 330 240 255 150 200 60 255 46 330 46 408Z"/>
       </svg>
-      <div class="glass-face">
+      <div class="glass-face top">
         <div class="t mono">00:00</div>
-        <div class="st">listo</div>
+        <div class="st">total</div>
+      </div>
+      <div class="glass-face bot">
+        <div class="pct mono">100 %</div>
+        <div class="st">efectividad</div>
       </div>
     </div>
   </div>
 
+  <div class="splits">
+    <div><small>EFECTIVO</small><b class="mono" style="color:#2ecc63">00:00</b></div>
+    <div><small>DESCANSO</small><b class="mono" style="color:#2f7bff">00:00</b></div>
+  </div>
+
+  <div class="controls">
+    <div class="cb x">${ic('close')}</div>
+    <div class="cb blue">${ic('coffee')}</div>
+    <div class="cb green">${ic('tick')}</div>
+  </div>
+
+  <div class="hint">Pulsa el botón de pausa para tomar un descanso</div>
+
   <div class="cta">
-    <div class="btn">${ic('play','ic sm')} Empezar sesión</div>
     <div class="btn orange">${ic('sparkles','ic sm')} Unirse a una Jam</div>
   </div>
   <div class="divider" style="margin-top:36px"></div>
@@ -757,7 +788,7 @@ const COPY = [
     badges:['Tiempo efectivo','Feed de estudio'] },
 
   { t:'Mide el tiempo<br>que de verdad rindes',
-    s:'Cronómetro o temporizador, con la efectividad y los descansos por separado.',
+    s:'Tu tiempo efectivo y tus descansos, contados por separado en cada sesión.',
     bg:'linear-gradient(165deg,#101a3a 0%,#06090f 100%)',
     blobs:[['#2563f5',420,-340,1080,.42],['#6c9bff',2120,800,620,.18]],
     badges:['Cronómetro y temporizador','Descansos medidos'] },
